@@ -1,4 +1,5 @@
 #QRgenerator 
+
 # pypng is required to app functionality!; anyway no import required, only have to it installed: pip install pypng
 
 import pyqrcode
@@ -70,6 +71,8 @@ class QRCodeGeneratorApp:
 
         image = Image.open(self.qr_path)
 
+        self.open_folder_button.config(state=NORMAL)                        #odomknutie tlacidla open_folder_button po vygenerovani qr code
+
         # fix size of QR image
         image = image.resize((220, 220), Image.LANCZOS)
 
@@ -84,6 +87,7 @@ class QRCodeGeneratorApp:
         self.qr_label.config(image='')
         self.url_entry.delete(0, END)
         self.photo_image = None
+        self.open_folder_button.config(state=DISABLED)
 
     def copy_qr_to_clipboard(self, event=None):
         if self.photo_image is None or not self.qr_path:
@@ -126,28 +130,32 @@ class QRCodeGeneratorApp:
         self.buttons_frame = Frame(self.root, bg=BG_COLOR)
         self.buttons_frame.grid(row=2, column=0, pady=5)
 
-        Button(
-            self.buttons_frame,
-            text='Generate QR Code',
-            command=self.generate_qr_code,
-            bg=BG_COLOR
-        ).grid(row=0, column=0, padx=(0, 20))
+        self.generate_button = Button(
+        self.buttons_frame,
+        text='Generate QR Code',
+        command=self.generate_qr_code,
+        bg=BG_COLOR
+        )
+        self.generate_button.grid(row=0, column=0, padx=(0, 20))
 
-        Button(
-            self.buttons_frame,
-            text="📂",
-            width=3,
-            command=self.open_qr_folder,
-            bg=BG_COLOR
-        ).grid(row=0, column=1, padx=(23, 0))
+        self.open_folder_button = Button(
+        self.buttons_frame,
+        text="📂",
+        width=3,
+        command=self.open_qr_folder,    
+        state=DISABLED,                             #po prvom spusteni app bude btn disabled, aktivuje sa v generate_qr az ked subor existuje
+        bg=BG_COLOR
+        )
+        self.open_folder_button.grid(row=0, column=1, padx=(23, 0))
 
-        Button(
-            self.buttons_frame,
-            text='🗑',
-            width=3,
-            command=self.clear_qr,
-            bg=BG_COLOR
-        ).grid(row=0, column=2, padx=(5, 0))
+        self.clear_button = Button(
+        self.buttons_frame,
+        text='🗑',
+        width=3,
+        command=self.clear_qr,
+        bg=BG_COLOR
+        )
+        self.clear_button.grid(row=0, column=2, padx=(5, 0))
 
         # QR frame – pevne rezervovane miesto
         self.qr_frame = Frame(self.root, height=230)
