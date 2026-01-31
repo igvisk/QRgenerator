@@ -11,7 +11,7 @@ import os
 import subprocess
 import webbrowser
 
-VERSION = "v0.6"
+VERSION = "v0.7b"
 BG_COLOR = "#ECE9E9"
 
 class QRCodeGeneratorApp:
@@ -19,7 +19,7 @@ class QRCodeGeneratorApp:
         # --- ROOT ---
         self.root = Tk()
         self.root.title(f'QR Code Generator {VERSION}')
-        self.root.geometry('300x350')
+        self.set_window_geometry(300, 350)
         self.root.resizable(False, False)
         self.root.configure(bg=BG_COLOR)
 
@@ -43,6 +43,19 @@ class QRCodeGeneratorApp:
         self.bind_events()
 
     # --- FUNKCIE ---
+       # Window geometry - Open app in the center of the screen         
+    def set_window_geometry(self, width, height):
+        # Obtain Screen resolution
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # Position calculation of the window
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+
+        # Set position of the window to center 
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
+
     def generate_qr_code(self):
         text = self.url_entry.get().strip()
         if not text:
