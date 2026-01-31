@@ -12,15 +12,15 @@ import os
 import subprocess
 import webbrowser
 
-VERSION = "v0.7b"
+VERSION = "v0.8b"
 BG_COLOR = "#ECE9E9"
 
 class QRCodeGeneratorApp:
     def __init__(self):
         # --- ROOT ---
         self.root = Tk()
-        self.root.title(f'QR Code Generator {VERSION}')
-        self.set_window_geometry(300, 350)
+        self.root.title(f'QR generator {VERSION}')
+        self.set_window_geometry(300, 360)      #default 300, 360
         self.root.resizable(False, False)
         self.root.configure(bg=BG_COLOR)
 
@@ -38,6 +38,13 @@ class QRCodeGeneratorApp:
         self.photo_image = None
         #Ak neexistuje qr_code.png
         self.qr_path = None 
+        
+        # --- Wi-Fi mode state ---
+        self.wifi_mode = BooleanVar(value=False)
+        self.wifi_security = StringVar(value="WPA")
+        self.wifi_hidden = BooleanVar(value=False)
+        self.show_password = BooleanVar(value=False)
+
 
         # --- UI ---
         self.create_layout()
@@ -58,9 +65,20 @@ class QRCodeGeneratorApp:
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def generate_qr_code(self):
-        text = self.url_entry.get().strip()
-        if not text:
-            return
+        # text = self.url_entry.get().strip()
+        # if not text:
+        #     return
+
+        
+        if self.wifi_mode.get():
+            text = self.build_wifi_payload()
+            if not text:
+                return
+        else:
+            text = self.url_entry.get().strip()
+            if not text:
+                return
+
 
         qr = pyqrcode.create(text, encoding='utf-8')       # diakritika
 
@@ -108,6 +126,58 @@ class QRCodeGeneratorApp:
 
     def open_github(self, event=None):                        # → event=None → aby fungovalo aj z klávesnice alebo iného volania.
         webbrowser.open_new("https://github.com/igvisk")
+    
+    # toggle wifi mode
+    def toggle_wifi_mode(self):
+        if self.wifi_mode.get():
+            # Wi-Fi mode ON
+            self.text_frame.grid_remove()
+            self.wifi_frame.grid(row=1, column=0, pady=(10, 0))
+            self.set_window_geometry(300, 490)   # increase Y
+        else:
+            # Wi-Fi mode OFF
+            self.wifi_frame.grid_remove()
+            self.text_frame.grid(row=1, column=0)
+            self.set_window_geometry(300, 360)   #return Y to initial value
+
+    def toggle_password_visibility(self):
+        if self.show_password.get():
+            self.password_entry.config(show="*")
+            self.show_password.set(False)
+        else:
+            self.password_entry.config(show="")
+            self.show_password.set(True)
+
+    def security_changed(self, value):
+        if value == "Open":
+            self.password_entry.delete(0, END)
+            self.password_entry.config(state=DISABLED)
+            self.toggle_pw_btn.config(state=DISABLED)
+        else:
+            self.password_entry.config(state=NORMAL)
+            self.toggle_pw_btn.config(state=NORMAL)
+
+    def build_wifi_payload(self):                       # builder pre vyplnenie pre wifi
+        ssid = self.ssid_entry.get().strip()
+        if not ssid:
+            messagebox.showerror("Error", "SSID is required")
+            return None
+
+        security = self.wifi_security.get()
+        password = self.password_entry.get().strip()
+        hidden = "true" if self.wifi_hidden.get() else "false"
+
+        if security != "Open" and not password:
+            messagebox.showerror("Error", "Password is required for secured networks")
+            return None
+
+        if security == "Open":
+            return f"WIFI:T:nopass;S:{ssid};H:{hidden};;"
+
+        return f"WIFI:T:{security};S:{ssid};P:{password};H:{hidden};;"
+
+    
+
 
     # --- UI KONSTRUKCIA ---
     def create_layout(self):
@@ -115,20 +185,94 @@ class QRCodeGeneratorApp:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(3, weight=1)
 
+        self.wifi_checkbox = Checkbutton(
+        self.root,
+        text="Generate Wi-Fi QR",
+        variable=self.wifi_mode,
+        bg=BG_COLOR,
+        command=self.toggle_wifi_mode
+        )
+        self.wifi_checkbox.grid(row=0, column=0, pady=(8, 0))
+
+        # --- TEXT / URL MODE FRAME ---
+        self.text_frame = Frame(self.root, bg=BG_COLOR)
+        self.text_frame.grid(row=1, column=0)
+
         self.url_label = Label(
-            self.root,
-            text='Enter text or URL',
+            self.text_frame,
+            text="Enter text or URL",
             font=("Arial", 10, "bold"),
             bg=BG_COLOR
         )
-        self.url_label.grid(row=0, column=0, pady=(10, 2))
+        self.url_label.pack(pady=(10, 2))
 
-        self.url_entry = Entry(self.root, width=35)
-        self.url_entry.grid(row=1, column=0, pady=(0, 8))
+        self.url_entry = Entry(self.text_frame, width=35)
+        self.url_entry.pack(pady=(0, 8))
+
+        # --- WI-FI MODE FRAME ---
+        self.wifi_frame = Frame(self.root, bg=BG_COLOR)
+
+            # SSID
+        Label(
+            self.wifi_frame,
+            text="Wi-Fi network name (SSID)",
+            bg=BG_COLOR
+        ).grid(row=0, column=0, sticky="w")
+
+        self.ssid_entry = Entry(self.wifi_frame, width=35)
+        self.ssid_entry.grid(row=1, column=0, pady=(0, 6))
+
+            # PASSWORD
+        Label(
+            self.wifi_frame,
+            text="Wi-Fi password",
+            bg=BG_COLOR
+        ).grid(row=2, column=0, sticky="w")
+
+        pw_frame = Frame(self.wifi_frame, bg=BG_COLOR)
+        pw_frame.grid(row=3, column=0, pady=(0, 6), sticky="w")
+
+        self.password_entry = Entry(pw_frame, width=30, show="*")
+        self.password_entry.grid(row=0, column=0)
+
+        self.toggle_pw_btn = Button(
+            pw_frame,
+            text="👁",
+            width=3,
+            command=self.toggle_password_visibility
+        )
+        self.toggle_pw_btn.grid(row=0, column=1, padx=(5, 0))
+
+            # SECURITY
+        Label(
+            self.wifi_frame,
+            text="Security",
+            bg=BG_COLOR
+        ).grid(row=4, column=0, sticky="w")
+
+        self.security_menu = OptionMenu(
+            self.wifi_frame,
+            self.wifi_security,
+            "WPA",
+            "Open",
+            command=self.security_changed
+        )
+        self.security_menu.grid(row=5, column=0, sticky="w")
+
+            # HIDDEN NETWORK
+        self.hidden_check = Checkbutton(
+            self.wifi_frame,
+            text="Hidden network",
+            variable=self.wifi_hidden,
+            bg=BG_COLOR
+        )
+        self.hidden_check.grid(row=6, column=0, pady=(4, 0), sticky="w")
+
+
 
         # FRAME PRE TLAČIDLÁ
         self.buttons_frame = Frame(self.root, bg=BG_COLOR)
-        self.buttons_frame.grid(row=2, column=0, pady=5)
+        self.buttons_frame.grid(row=2, column=0, pady=5)            # always row 2
 
         self.generate_button = Button(
         self.buttons_frame,
@@ -159,8 +303,8 @@ class QRCodeGeneratorApp:
 
         # QR frame – pevne rezervovane miesto
         self.qr_frame = Frame(self.root, height=230)
-        self.qr_frame.grid(row=3, column=0)
-        self.qr_frame.grid_propagate(False)   # ZAKAZE ZMENU VYSKY
+        self.qr_frame.grid(row=3, column=0)                 # row=3
+        self.qr_frame.grid_propagate(False)                 # ZAKAZE ZMENU VYSKY
 
         self.qr_label = Label(self.qr_frame, cursor='hand2', bg=BG_COLOR)
         self.qr_label.pack(expand=True)
