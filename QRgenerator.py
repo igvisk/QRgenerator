@@ -1,5 +1,5 @@
 #QRgenerator 
-# need pypng !!! no import required only have it installed: pip install pypng
+# pypng is required to app functionality!; anyway no import required, only have to it installed: pip install pypng
 
 import pyqrcode
 from tkinter import *
@@ -63,14 +63,14 @@ class QRCodeGeneratorApp:
 
         qr = pyqrcode.create(text, encoding='utf-8')       # diakritika
 
-         # cesta k PNG v adresári skriptu
+         # path to .png located in script_dir
         self.qr_path = os.path.join(self.script_dir, "qr_code.png")
 
         qr.png(self.qr_path, scale=5)
 
         image = Image.open(self.qr_path)
 
-        # FIXNA VELKOST QR OBRAZKA
+        # fix size of QR image
         image = image.resize((220, 220), Image.LANCZOS)
 
         self.photo_image = ImageTk.PhotoImage(image)
@@ -94,7 +94,7 @@ class QRCodeGeneratorApp:
 
         output = io.BytesIO()
         image.save(output, "BMP")
-        data = output.getvalue()[14:]       # odstráni BMP header
+        data = output.getvalue()[14:]                         # odstráni BMP header
         output.close()
 
         win32clipboard.OpenClipboard()
