@@ -12,7 +12,7 @@ import os
 import subprocess
 import webbrowser
 
-VERSION = "v0.8b"
+VERSION = "v0.8.1"
 BG_COLOR = "#ECE9E9"
 
 class QRCodeGeneratorApp:
@@ -102,10 +102,32 @@ class QRCodeGeneratorApp:
             subprocess.run(f'explorer /select,"{self.qr_path}"')
 
     def clear_qr(self):
+        # clear QR image
         self.qr_label.config(image='')
-        self.url_entry.delete(0, END)
         self.photo_image = None
+        self.qr_path = None
+
+        # disable open folder button
         self.open_folder_button.config(state=DISABLED)
+
+        if self.wifi_mode.get():
+            # --- WI-FI MODE RESET ---
+            self.ssid_entry.delete(0, END)
+            self.password_entry.delete(0, END)
+
+            self.wifi_security.set("WPA")
+            self.wifi_hidden.set(False)
+
+            self.password_entry.config(state=NORMAL, show="*")
+            self.toggle_pw_btn.config(state=NORMAL)
+            self.show_password.set(False)
+
+            self.ssid_entry.focus_set()
+
+        else:
+            # --- TEXT / URL MODE RESET ---
+            self.url_entry.delete(0, END)
+            self.url_entry.focus_set()
 
     def copy_qr_to_clipboard(self, event=None):
         if self.photo_image is None or not self.qr_path:
