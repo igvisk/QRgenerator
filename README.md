@@ -29,6 +29,12 @@ The project is intended as:
 
 ---
 
+## 🖼️ Preview
+  
+![QR generator](images/qr_gen.png)
+
+---
+
 ## 🛠 Built With
 
 - **Python**
