@@ -1,111 +1,75 @@
-# QR Code Generator (Python)
+# QRgenerator
 
-⚠️ **Under Construction**  
-This project is still actively being developed.  
-Features, UI, and behavior may change at any time.
+QRgenerator is a lightweight Windows desktop app built with Python and Tkinter for creating QR codes from plain text, URLs, and Wi-Fi credentials.
 
----
+Current application version: `v0.8.1`
 
-## 📌 About
+## Features
 
-**QR Code Generator** is a lightweight desktop application built with Python and Tkinter.  
-It allows users to generate QR codes from text or URLs, copy them to the clipboard, and quickly access the generated file.
+- Generate QR codes from text and URLs
+- Generate Wi-Fi QR codes for `WPA` and `Open` networks
+- Optional hidden network flag for Wi-Fi payloads
+- UTF-8 QR generation for Unicode text
+- Fixed-size QR preview inside the app window
+- Click the QR preview to copy it to the Windows clipboard
+- Open the generated file directly in Windows Explorer
+- Clear the current QR preview and reset the active form
+- Simple centered Tkinter interface with a clickable GitHub footer link
 
-The project is intended as:
-- a learning project
-- a portfolio desktop application
+## Preview
 
----
-
-## ✨ Features
-
-- Generate QR codes from **text or URLs**
-- Full **Unicode / UTF-8 support** (diacritics included)
-- Fixed-size QR preview (stable UI)
-- Click the QR image to **copy it to the clipboard** (Windows)
-- Open the folder containing the generated QR file
-- Clean Tkinter GUI with centered window layout
-- Footer with a clickable GitHub link
-
----
-
-## 🖼️ Preview
-  
 ![QR generator](images/qr_gen.png)
 
----
+## Requirements
 
-## 🛠 Built With
+- Python 3
+- Tkinter
+- `pyqrcode`
+- `pypng`
+- `Pillow`
+- `pywin32`
 
-- **Python**
-- **Tkinter** – GUI framework
-- **pyqrcode** – QR code generation
-- **Pillow (PIL)** – image processing
-- **pywin32** – Windows clipboard integration
+Install dependencies with:
 
----
+```bash
+pip install pyqrcode pypng pillow pywin32
+```
 
-## 📂 Output
+`pypng` is required for PNG export used by `pyqrcode`.
+
+## Run
+
+```bash
+python QRgenerator.py
+```
+
+## Usage
+
+1. Leave `Generate Wi-Fi QR` unchecked to create a QR code from text or a URL.
+2. Enable `Generate Wi-Fi QR` to switch to Wi-Fi mode.
+3. In Wi-Fi mode, enter the SSID, choose security type, and optionally mark the network as hidden.
+4. Click `Generate QR Code` to create and preview the QR code.
+5. Click the QR image to copy it to the clipboard.
+6. Use the folder button to reveal the generated file in Explorer.
+7. Use the clear button to reset the current mode and remove the preview.
+
+## Output
 
 The generated QR code is saved as:
 
-```
+```text
 qr_code.png
 ```
 
-in the same directory as the application.
+The file is created in the same directory as `QRgenerator.py` and is overwritten each time a new QR code is generated.
 
----
+## Platform Notes
 
-## ⚠️ Platform Notes
+- The current implementation is Windows-focused.
+- Clipboard image copy depends on `pywin32`.
+- Opening the generated file location uses Windows Explorer.
 
-- Clipboard image copy works **only on Windows**
-- Requires `pywin32`
-- Tested with:
-  - Python 3.13
+## Author
 
-Python 3.13 support depends on the installed `pywin32` build.  
-If issues occur, Python 3.12 is recommended.
-
----
-
-## 📜 Licenses & Third-Party Software
-
-This project uses the following open-source libraries:
-
-### pyqrcode
-- License: **MIT License**
-- Copyright © 2013 Michael Hershey
-
-### Pillow (PIL)
-- License: **PIL Software License** (BSD-style)
-
-### pywin32
-- License: **Python Software Foundation License (PSF)**
-
-All third-party libraries remain the property of their respective authors.  
-This project does **not** claim ownership over any third-party code.
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**.
-
-The MIT License applies **only to the original source code of this project**.  
-Third-party libraries are distributed under their respective licenses and remain the property of their original authors.
-
-See the `LICENSE` file for full license text.
-
----
-
-## © Copyright
-
-© 2026 Igor Vitovský
-
----
-
-## 🔗 Author
-
-**Igor Vitovský**  
+Igor Vitovsky  
 GitHub: https://github.com/igvisk
